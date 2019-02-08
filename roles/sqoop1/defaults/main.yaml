@@ -1,0 +1,7 @@
+sqoop_version: "1.4.7"
+sqoop_hadoop_version: "2.6.0"
+sqoop_work_path: "/home/cdh"
+sqoop_download_url: "http://apache.mirror.amaze.com.au/sqoop/{{sqoop_version}}/sqoop-{{sqoop_version}}.bin__hadoop-{{sqoop_hadoop_version}}.tar.gz"
+sqoop_user: root
+sqoop_group: root
+sqoop_path: "{{sqoop_work_path}}/sqoop-{{sqoop_version}}.bin__hadoop-{{sqoop_hadoop_version}}"

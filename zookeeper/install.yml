@@ -1,0 +1,4 @@
+- hosts: 
+  - zookeeper
+  roles: 
+  - install

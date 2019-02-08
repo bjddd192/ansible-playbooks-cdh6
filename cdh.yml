@@ -1,0 +1,20 @@
+- hosts: 
+  - cdh-cluster
+  roles: 
+  - common
+  - jdk
+  
+- hosts: 
+  - cdh-master
+  roles: 
+  - ca
+
+- hosts: 
+  - cdh-workers
+  roles: 
+  - ca
+
+- hosts: 
+  - cdh-cluster
+  roles: 
+  - cdh

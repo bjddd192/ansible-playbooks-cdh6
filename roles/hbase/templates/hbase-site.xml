@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<!--
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License. See accompanying LICENSE file.
+-->
+
+<!-- Put site-specific property overrides in this file. -->
+
+<configuration>
+    <property>
+      <name>hbase.master.port</name>
+      <value>{{ hbase_master_port }}</value>
+      <description>HBase的Master的端口. 默认: 60000</description>
+    </property>
+    <property>
+      <name>hbase.master.info.port</name>
+      <value>{{ hbase_master_info_port }}</value>
+      <description>HBase Master web 界面端口. 设置为-1 意味着你不想让他运行。默认: 60010</description>
+    </property>
+    <property>
+      <name>hbase.tmp.dir</name>
+      <value>{{ hbase_tmp_path }}</value>
+      <description>本地文件系统的临时文件夹。可以修改到一个更为持久的目录上。(/tmp会在重启时清楚) 默认: /tmp/hbase-${user.name}</description>
+    </property>
+    <property>
+      <name>hbase.rootdir</name>
+      <value>hdfs://{{ hadoop_master_ip }}:{{ hadoop_hdfs_port }}{{ hbase_hdfs_path }}</value>
+      <description>这个目录是region server的共享目录，用来持久化HBase。</description>
+    </property>
+    <property>
+      <name>hbase.regionserver.port</name>
+      <value>{{ hbase_regionserver_port }}</value>
+      <description>HBase RegionServer绑定的端口 默认: 60020</description>
+    </property>
+    <property>
+      <name>hbase.regionserver.info.port</name>
+      <value>{{ hbase_regionserver_info_port }}</value>
+      <description>HBase RegionServer web 界面绑定的端口 设置为 -1 意味这你不想与运行 RegionServer 界面. 默认: 60030</description>
+    </property>
+    <property>
+      <name>hbase.rest.port</name>
+      <value>{{ hbase_rest_port }}</value>
+      <description>HBase REST server的端口. 默认: 8080</description>
+    </property>
+    <property>
+      <name>hbase.cluster.distributed</name>
+      <value>true</value>
+      <description>HBase的运行模式。false是单机模式，true是分布式模式。若为false, HBase和Zookeeper会运行在同一个JVM里面。</description>
+    </property>
+    <property>
+      <name>hbase.zookeeper.property.clientPort</name>
+      <value>{{ zk_client_port }}</value>
+      <source>默认值 2181</source>
+    </property>
+    <property>
+      <name>hbase.zookeeper.quorum</name>
+      <value>{% for z in groups['zookeeper'] %}{% if loop.index != groups['zookeeper']|length %}{{ z }},{% else %}{{ z }}{% endif %}{% endfor %}</value>
+      <description>Zookeeper集群的地址列表，用逗号分割。默认是localhost,是给伪分布式用的。要修改才能在完全分布式的情况下使用。</description>
+    </property>
+</configuration>

@@ -1,0 +1,29 @@
+- name: 准备 scala 工作目录
+  file: name={{ item }} state=directory owner={{ hadoop_user }} group={{ hadoop_group }} mode=0755
+  with_items:
+  - "{{ scala_work_path }}"
+  
+- name: 下载 scala 安装包
+  get_url: url={{ scala_download_url }} dest=/tmp owner={{ hadoop_user }} group={{ hadoop_group }} mode=644
+
+- name: 解压 scala 安装包
+  unarchive:
+    # src也可以直接填写一个URL地址直接进行下载解压
+    src: "/tmp/scala-{{ scala_version }}.tgz"
+    copy: no
+    dest: "{{ scala_work_path }}"
+    owner: "{{ hadoop_user }}"
+    group: "{{ hadoop_group }}"
+    
+- name: 调整 scala 目录所有者
+  file: name={{ scala_path }} state=directory recurse=yes owner={{ hadoop_user }} group={{ hadoop_group }} 
+
+- name: 设置 scala 环境变量
+  template: src=scala_env.sh dest=/etc/profile.d
+
+- name: 生效 scala 环境变量
+  shell: "source /etc/profile.d/scala_env.sh"
+
+
+
+

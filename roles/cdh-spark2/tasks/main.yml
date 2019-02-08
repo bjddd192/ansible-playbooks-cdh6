@@ -1,0 +1,28 @@
+- name: 清理 spark2 工作目录
+  file: name={{ item }} state=absent
+  with_items:
+  - "{{ cdh_path_csd }}"
+
+- name: 准备 spark2 工作目录
+  file: name={{ item }} state=directory owner={{ cdh_user }} group={{ cdh_group }} mode=0755
+  with_items:
+  - "{{ cdh_path_csd }}"
+
+- name: 下载 spark2 csd 安装包
+  get_url: url={{ spark2_csd_download_url }} dest={{ cdh_path_csd }} owner={{ cdh_user }} group={{ cdh_group }} mode=644
+
+- name: 下载 spark2 parcels
+  get_url: url={{ item }} dest=/opt/cloudera/parcel-repo owner={{ cdh_user }} group={{ cdh_group }} mode=644
+  with_items:
+  - "{{ spark2_parcel_manifest_download_url }}"
+  - "{{ spark2_parcel_download_url }}"
+
+# 否则识别不到，选择CDH版本的时候看不到
+- name: 下载 spark2 parcel.sha1 并改名为 parcel.sha
+  get_url: url={{ spark2_parcel_sha1_download_url }} dest=/opt/cloudera/parcel-repo/SPARK2-{{cdh_spark2_version}}.{{cdh_spark2_cloudera_version}}-{{cdh_spark2_cdh_version}}.parcel.sha owner={{ cdh_user }} group={{ cdh_group }} mode=644
+
+# - name: 设置 cdh 环境变量
+#   template: src=cdh_env.sh dest=/etc/profile.d
+# 
+# - name: 生效 cdh 环境变量
+#   shell: "source /etc/profile.d/cdh_env.sh"

@@ -1,0 +1,4 @@
+- hosts: 
+  - cdh-cluster
+  roles: 
+  - cdh-spark2

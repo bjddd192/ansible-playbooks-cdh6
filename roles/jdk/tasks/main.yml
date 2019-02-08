@@ -1,0 +1,36 @@
+# Cloudera 支持 Oracle JVM 1.6.0_31 和 1.7.0_55 版本及更高版本。
+# 不支持 OpenJDK，而且众所周知的是 gcj 无法运行。
+
+- name: 卸载系统自带 JDK
+  yum: name={{ item }} state=absent
+  with_items: 
+  - "java*"
+  - "jdk*"
+  - "oracle-j2sdk*"
+  
+- name: 下载 JDK
+  get_url: url={{ item }} dest=/tmp mode=644
+  with_items:
+  - "{{ cdh_jdk_download_url }}"
+  # - "{{ cdh_oracle_j2sdk_download_url }}"
+
+# 安装 jdk 的版本字段 default 的软链接，更合适，因此不选择 oracle 那个了
+- name: 安装 JDK
+  yum: name={{ item }} state=present
+  with_items: 
+  - "/tmp/jdk-{{cdh_jdk_version}}-linux-x64.rpm"
+  # - "/tmp/oracle-j2sdk1.7-1.7.0+update67-1.x86_64.rpm"
+
+- name: 配置 JAVA_HOME
+  template: src=java_home.sh dest=/etc/profile.d
+
+- name: 生效 JAVA_HOME
+  shell: "source /etc/profile.d/java_home.sh"
+
+- name: 准备 java 共享目录
+  file: name={{ item }} state=directory mode=0755
+  with_items:
+  - "/usr/share/java"
+  
+- name: 拷贝 mysql-connector 包
+  copy: src=mysql-connector-java-5.1.46.jar dest=/usr/share/java/mysql-connector-java.jar mode=644

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<!--
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License. See accompanying LICENSE file.
+-->
+
+<!-- Put site-specific property overrides in this file. -->
+
+<configuration>
+  <property>
+    <name>fs.defaultFS</name>
+    <value>hdfs://{{ hadoop_master_ip }}:{{ hadoop_hdfs_port }}</value>
+    <description>为服务器IP地址，也可以使用主机名</description>
+  </property>
+  <property>
+    <name>hadoop.tmp.dir</name>
+    <value>{{ hadoop_tmp_path }}</value>
+    <description>hadoop.tmp.dir 是 hadoop 文件系统依赖的基本配置，很多配置路径都依赖它，它的默认位置在 /tmp/{$user} 下面。</description>
+  </property>
+  <property>
+    <name>io.file.buffer.size</name>
+    <value>131072</value>
+    <description>SequenceFiles文件中，读写缓存size设定。该属性值单位为KB，131072KB即为默认的64M</description>
+  </property>
+</configuration>

@@ -1,0 +1,64 @@
+# 系统检查
+# 内核检查：7.4以上 cat /etc/redhat-release  
+# 没有需要升级内核： yum update
+
+# 先拉取下节点的ansible setup信息，起到缓存效果，否则后续 when 判断可能失败
+- name: 缓存ansilbe setup信息
+  setup: gather_subset=min
+
+- name: yum 切换163源
+  copy: src=CentOS7-Base.repo dest=/etc/yum.repos.d/CentOS7-Base.repo
+
+# 对于低于7.4的centos系统先进行系统内核升级  
+- name: 升级系统内核
+  shell: "yum -y update"
+  when: update_yum is defined and ansible_distribution == "CentOS" and ansible_distribution_major_version|int == 7 and ansible_distribution_version < "7.4"
+
+- name: 安装必备组件
+  yum: update_cache=yes name={{ item }} state=present
+  with_items:
+  - wget
+  - ntpdate
+  - git
+  - tar
+  - telnet
+  - vim
+  - net-tools
+  - lrzsz
+  - epel-release
+  - bash-completion
+
+- name: 同步时间
+  command: ntpdate -u {{ ntpdate_address }}
+  when: ntpdate_address is defined
+
+# 查看定时任务命令：crontab -l 
+# 文件存放目录：cat /var/spool/cron/root
+# centos7 获取时间命令：timedatectl 
+# centos7 设置时间命令：timedatectl set-ntp no && timedatectl set-time "1982-01-01 00:00:00" && timedatectl set-ntp yes
+# timedatectl 会自动同步时间，配置 /etc/ntp.conf 文件 (测试环境是这样，生产环境代验证)
+- name: 设置时间同步定时任务
+  when: ntpdate_address is defined 
+  cron:
+    name: "时间同步"
+    minute: "*/5"
+    user: root 
+    job: "ntpdate -u {{ ntpdate_address }}"
+
+- name: 设置启用时间同步
+  shell: "timedatectl set-ntp yes"
+    
+- name: 修改机器名
+  hostname: name={{ node_name }}
+
+# 删除默认安装
+- name: 删除centos防火墙
+  when: ansible_distribution == "CentOS"
+  yum: name={{ item }} state=absent
+  with_items:
+  - firewalld
+  - firewalld-filesystem
+  - python-firewall
+
+- name: 关闭 selinux
+  selinux: state=disabled

@@ -1,0 +1,53 @@
+- name: 准备 Hive 工作目录
+  file: name={{ item }} state=directory owner={{ hadoop_user }} group={{ hadoop_group }} mode=0755
+  with_items:
+  - "{{ hive_work_path }}"
+  - "{{ hive_logging_operation_log_location }}"
+  
+- name: 下载 Hive 安装包
+  get_url: url={{ hive_download_url }} dest=/tmp owner={{ hadoop_user }} group={{ hadoop_group }} mode=644
+
+- name: 解压 Hive 安装包
+  unarchive:
+    # src也可以直接填写一个URL地址直接进行下载解压
+    src: "/tmp/apache-hive-{{ hive_version }}-bin.tar.gz"
+    copy: no
+    dest: "{{ hive_work_path }}"
+    owner: "{{ hadoop_user }}"
+    group: "{{ hadoop_group }}"
+    
+- name: 调整 Hive 目录所有者
+  file: name={{ hive_path }} state=directory recurse=yes owner={{ hadoop_user }} group={{ hadoop_group }} 
+
+- name: 拷贝 mysql-connector 包
+  copy: src=mysql-connector-java-8.0.11.jar dest={{ hive_lib_path }} owner={{ hadoop_user }} group={{ hadoop_group }} mode=644
+
+- name: 设置 Hive 环境变量
+  template: src=hive_env.sh dest=/etc/profile.d
+
+- name: 生效 Hive 环境变量
+  shell: "source /etc/profile.d/hive_env.sh"
+  
+- name: 拷贝 Hive 配置文件
+  template: src={{ item }} dest={{ hive_config_path }} owner={{ hadoop_user }} group={{ hadoop_group }} mode=644
+  with_items:
+    - hive-site.xml
+
+- name: 初始化 Hive hdfs 目录
+  shell: su {{ hadoop_user }} -c "hadoop fs -mkdir -p {{ item }}"
+  with_items:
+  - "/user/hive/warehouse"
+  - "/user/hive/tmp"
+  - "/user/hive/log"
+
+- name: 调整 Hive hdfs 目录权限
+  shell: su {{ hadoop_user }} -c "hadoop fs -chmod -R 777 {{ item }}"
+  with_items:
+  - "/user/hive/warehouse"
+  - "/user/hive/tmp"
+  - "/user/hive/log"
+
+- name: 初始化 Hive
+  shell: su {{ hadoop_user }} -c "schematool -initSchema -dbType {{ hive_db_type }}"
+
+

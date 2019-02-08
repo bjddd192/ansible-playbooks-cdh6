@@ -1,0 +1,38 @@
+[zookeeper]
+172.20.32.60
+172.20.32.48
+172.20.32.59
+
+[all:vars]
+
+#是否需要新增操作系统用户（不需要则注释参数）
+add_user=true
+
+zookeeper_user="zookeeper"
+zookeeper_group="zookeeper"
+
+# 指定password参数时，不能直接指定密码，需要先将密码字符串进行加密处理。
+# How do I generate crypted passwords for the user module?
+# https://docs.ansible.com/ansible/latest/reference_appendices/faq.html#how-do-i-generate-crypted-passwords-for-the-user-module
+# 我使用的是macOX生成密码，命令为：
+# python3 -m pip install passlib
+# python3 -c "from passlib.hash import sha512_crypt; import getpass; print(sha512_crypt.using(rounds=5000).hash(getpass.getpass()))"
+# Centos7 下生成密码的命令为：
+# echo "zookeeper" | openssl passwd -1 -salt $(< /dev/urandom tr -dc '[:alnum:]' | head -c 32) -stdin
+zookeeper_user_password="$6$uPeoO1aXI6.B5fcM$UyooTKZMcJCzxmvS8IUWFpoH/KTqLinxd7sRDql3O7YFlF.X9OVUMyr.S80q7DsdiwsRt41Y/1ruZQGngcR5r1"
+
+zookeeper_user_path="/home/zookeeper"
+zookeeper_version="3.4.12"
+zookeeper_download_url="http://172.20.32.36/package/zookeeper/zookeeper-{{zookeeper_version}}.tar.gz"
+#zookeeper_download_url="http://mirror.bit.edu.cn/apache/zookeeper/zookeeper-{{zookeeper_version}}/zookeeper-{{zookeeper_version}}.tar.gz"
+zookeeper_work_path="/home/zookeeper"
+zookeeper_data_path="{{zookeeper_work_path}}/data"
+zookeeper_log_path="{{zookeeper_work_path}}/log"
+zookeeper_path="{{zookeeper_work_path}}/zookeeper-{{zookeeper_version}}"
+zookeeper_config_path="{{zookeeper_path}}/conf"
+zookeeper_bin_path="{{zookeeper_path}}/bin"
+zookeeper_client_port=2181
+zookeeper_leader_port=2888
+zookeeper_vote_port=3888
+zookeeper_jmx_port=11911
+

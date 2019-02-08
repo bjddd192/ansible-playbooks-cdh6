@@ -1,0 +1,5 @@
+- hosts: 
+  - hadoop-master
+  roles: 
+  # - common
+  - hadoop
