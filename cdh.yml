@@ -2,19 +2,32 @@
   - cdh-cluster
   roles: 
   - common
-  - jdk
+  tags: "common"
   
-- hosts: 
-  - cdh-master
-  roles: 
-  - ca
-
-- hosts: 
-  - cdh-workers
-  roles: 
-  - ca
-
 - hosts: 
   - cdh-cluster
   roles: 
+  - jdk
+  tags: "jdk"
+  
+- hosts: 
+  - cdh-cluster
+  roles: 
+  - cm
+  tags: "cm"
+  
+# - hosts: 
+#   - cdh-master
+#   roles: 
+#   - ca
+# 
+# - hosts: 
+#   - cdh-workers
+#   roles: 
+#   - ca
+# 
+- hosts: 
+  - cdh-server
+  roles: 
   - cdh
+  tags: "cdh"

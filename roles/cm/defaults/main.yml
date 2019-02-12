@@ -1,0 +1,23 @@
+# cm yum 仓库下载地址
+v_yum_repo_url: "{{ v_cdh_download_server }}/cm6/{{ v_cdh_version }}/redhat7/yum/cloudera-manager.repo"
+
+# cm 仓库签名 GPG 密钥下载地址
+v_yum_repo_gpgcheck_url: "{{ v_cdh_download_server }}/cm6/{{ v_cdh_version }}/redhat7/yum/RPM-GPG-KEY-cloudera"
+
+# scm_db_type
+v_cm_db_type: "mysql"
+
+# scm_db_host
+v_cm_db_host: ""
+
+# scm_db_name
+v_cm_db_name: "scm"
+
+# scm_db_user
+v_cm_db_user: "root"
+
+# scm_db_password
+v_cm_db_password: ""
+
+# scm_db_port
+v_cm_db_port: 3306

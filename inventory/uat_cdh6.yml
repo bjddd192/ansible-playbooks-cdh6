@@ -1,0 +1,7 @@
+# 自定义 hosts
+v_hosts: {
+"bjds-kubernetes-node-pre-10-240-114-34-vm.belle.lan": "10.240.114.34 ",
+"bjds-kubernetes-node-pre-10-240-114-38-vm.belle.lan": "10.240.114.38 ",
+"bjds-kubernetes-node-pre-10-240-114-65-vm.belle.lan": "10.240.114.65 ",
+"bjds-kubernetes-node-pre-10-240-114-67-vm.belle.lan": "10.240.114.67 "
+}

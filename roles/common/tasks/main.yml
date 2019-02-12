@@ -1,64 +1,157 @@
-# 系统检查
-# 内核检查：7.4以上 cat /etc/redhat-release  
-# 没有需要升级内核： yum update
-
-# 先拉取下节点的ansible setup信息，起到缓存效果，否则后续 when 判断可能失败
-- name: 缓存ansilbe setup信息
+# 拉取节点的 ansible setup 信息，起到缓存效果，否则后续 when 判断可能失败
+- name: 缓存 ansilbe setup 信息
   setup: gather_subset=min
+  
+- name: yum 切换 163 源
+  copy: src=CentOS-7-163.repo dest=/etc/yum.repos.d/CentOS-Base.repo
+  when: v_update_yum_with_163=="true"
+  
+- name: yum 切换 aliyun 源
+  copy: src=CentOS-7-aliyun.repo dest=/etc/yum.repos.d/CentOS-Base.repo
+  when: v_update_yum_with_aliyun=="true"
 
-- name: yum 切换163源
-  copy: src=CentOS7-Base.repo dest=/etc/yum.repos.d/CentOS7-Base.repo
-
-# 对于低于7.4的centos系统先进行系统内核升级  
+# 对于低于7.5的centos系统先进行系统内核升级  
 - name: 升级系统内核
   shell: "yum -y update"
-  when: update_yum is defined and ansible_distribution == "CentOS" and ansible_distribution_major_version|int == 7 and ansible_distribution_version < "7.4"
+  when: v_update_kernel=="true" and ansible_distribution_major_version|int == 7 and ansible_distribution_version < "7.5"
 
 - name: 安装必备组件
   yum: update_cache=yes name={{ item }} state=present
   with_items:
   - wget
+  - ntp
   - ntpdate
   - git
   - tar
+  - rpcbind
   - telnet
   - vim
   - net-tools
+  - bind-utils
   - lrzsz
   - epel-release
   - bash-completion
+  - python-pip
+  when: v_yum_install=="true"
+  
+- name: 升级 Psycopg2 版本
+  shell: "pip install --upgrade psycopg2"
+  
+- name: 重启 rpcbind 服务，并开启自启动
+  systemd:
+    name: rpcbind
+    daemon_reload: yes
+    state: restarted
+    enabled: yes
 
-- name: 同步时间
-  command: ntpdate -u {{ ntpdate_address }}
-  when: ntpdate_address is defined
+# 查看同步情况命令
+# ntpq -p
+# ntpstat
+- name: 重启 ntpd 服务，并设置自启动
+  systemd:
+    name: ntpd
+    daemon_reload: yes
+    state: restarted
+    enabled: yes
+  when: v_ntpdate_install=="true"
+  
+- name: 更新 ntp 的配置文件
+  copy: src=ntp.conf dest=/etc/ntp.conf
+  when: v_ntpdate_install=="true"
+    
+- name: 重启 ntpd 服务，并设置自启动
+  systemd:
+    name: ntpd
+    daemon_reload: yes
+    state: restarted
+    enabled: yes
+  when: v_ntpdate_install=="true"
+  
+- name: 立即同步时间
+  command: ntpdate -u {{ v_ntpdate_address }}
+  when: v_ntpdate_install=="true"
 
 # 查看定时任务命令：crontab -l 
 # 文件存放目录：cat /var/spool/cron/root
 # centos7 获取时间命令：timedatectl 
 # centos7 设置时间命令：timedatectl set-ntp no && timedatectl set-time "1982-01-01 00:00:00" && timedatectl set-ntp yes
-# timedatectl 会自动同步时间，配置 /etc/ntp.conf 文件 (测试环境是这样，生产环境代验证)
+# 查看任务执行日志：
+# tail -n 500 /var/log/cron 
+# tail -n 500 /var/spool/mail/root
 - name: 设置时间同步定时任务
-  when: ntpdate_address is defined 
   cron:
     name: "时间同步"
-    minute: "*/5"
+    minute: "*/30"
     user: root 
-    job: "ntpdate -u {{ ntpdate_address }}"
+    # hwclock -w：修改硬件时间，保持和软件 NTP 时间同步
+    job: "/sbin/ntpdate -u {{ v_ntpdate_address }}; /sbin/hwclock -w"
+  when: v_ntpdate_install=="true"
 
 - name: 设置启用时间同步
   shell: "timedatectl set-ntp yes"
-    
+  when: v_ntpdate_install=="true"
+
 - name: 修改机器名
   hostname: name={{ node_name }}
+  when: v_enable_set_hostname=="true"
+  
+- name: 配置 FQDN
+  lineinfile:
+    dest: /etc/sysconfig/network
+    regexp: 'HOSTNAME'
+    line: 'HOSTNAME={{ ansible_hostname }}'
 
 # 删除默认安装
-- name: 删除centos防火墙
-  when: ansible_distribution == "CentOS"
+- name: 删除 CentOS 防火墙
   yum: name={{ item }} state=absent
   with_items:
   - firewalld
   - firewalld-filesystem
   - python-firewall
+  when: ansible_distribution == "CentOS"
 
 - name: 关闭 selinux
   selinux: state=disabled
+  
+- name: 集群hosts文件更新
+  lineinfile:
+    dest: /etc/hosts
+    regexp: '{{item.key}}'
+    line: '{{item.value}} {{item.key}}'
+  with_dict: '{{ v_hosts }}'
+  when: v_update_hosts=="true"
+  
+# - name: 集群hosts文件更新
+#   lineinfile:
+#     dest: /etc/hosts
+#     regexp: "{{ item }}"
+#     line: "{{ item }}"
+#   with_items: "{{ groups['cdh-cluster'] }}"
+#   when: v_update_hosts=="true"
+
+# Cloudera 建议将 /proc/sys/vm/swappiness 设置为最大值 10。服务器默认设置为 30。
+# 使用 sysctl 命令在运行时更改该设置并编辑 /etc/sysctl.conf，以在重启后保存该设置。
+# 您可以继续进行安装，但 Cloudera Manager 可能会报告您的主机由于交换而运行状况不良。     
+- name: 修改 linux swap 空间的 swappiness，降低对硬盘的缓存
+  lineinfile:
+    dest: /etc/sysctl.conf
+    regexp: "vm.swappiness"
+    line: "vm.swappiness={{ v_vm_swappiness }}"
+
+- name: 生效 swappiness 参数
+  shell: "sysctl -p /etc/sysctl.conf"
+
+# 已启用透明大页面压缩，可能会导致重大性能问题。
+# 请运行“echo never > /sys/kernel/mm/transparent_hugepage/defrag”
+# 和“echo never > /sys/kernel/mm/transparent_hugepage/enabled”以禁用此设置，
+# 然后将同一命令添加到 /etc/rc.local 等初始化脚本中，以便在系统重启时予以设置。
+# https://blog.csdn.net/csfreebird/article/details/49307935
+- name: 禁用透明大页面压缩
+  shell: "echo never > /sys/kernel/mm/transparent_hugepage/defrag && \
+          echo never > /sys/kernel/mm/transparent_hugepage/enabled"
+
+- name: 永久禁用透明大页面压缩
+  lineinfile:
+    dest: /etc/rc.local
+    regexp: "transparent_hugepage"
+    line: "echo never > /sys/kernel/mm/transparent_hugepage/defrag && echo never > /sys/kernel/mm/transparent_hugepage/enabled"

@@ -1,0 +1,8 @@
+# cdh 推荐 jdk 版本下载地址
+v_cdh_oracle_j2sdk_download_url: "{{ v_cdh_download_server }}/cm6/{{ v_cdh_version }}/redhat7/yum/RPMS/x86_64/oracle-j2sdk1.8-1.8.0+update141-1.x86_64.rpm"
+
+# 是否安装 jdk
+v_jdk_install: "false"
+
+# 安装的 jdk 版本
+v_jdk_version: "1.8.0_141"

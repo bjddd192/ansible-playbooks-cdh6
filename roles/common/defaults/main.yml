@@ -1,0 +1,33 @@
+# 是否使用 163 的 yum 源
+v_update_yum_with_163: "false"
+
+# 是否使用 aliyun 的 yum 源
+v_update_yum_with_aliyun: "false"
+
+# 是否更新内核
+v_update_kernel: "false"
+
+# 是否安装必备组件
+v_yum_install: "false"
+
+# 是否安装时间同步
+v_ntpdate_install: "false"
+
+# 时间同步服务器地址
+v_ntpdate_address: "ntp1.aliyun.com"
+
+# 是否允许设置主机的 hostname
+v_enable_set_hostname: "false"
+
+# 是否更新操作系统 hosts 文件
+v_update_hosts: "false"
+
+# 自定义 hosts
+v_hosts: {
+"localhost localhost.localdomain localhost4 localhost4.localdomain4": "127.0.0.1   ",
+"localhost localhost.localdomain localhost6 localhost6.localdomain6": "::1         "
+}
+
+# 服务器使用 swap 内存的百分比
+v_vm_swappiness: 10
+

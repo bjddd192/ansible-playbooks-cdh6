@@ -1,0 +1,8 @@
+# CDH安装用户
+v_cdh_user: "root"
+
+# CDH安装用户组
+v_cdh_group: "root"
+
+# CDH安装用户默认路径
+v_cdh_user_path: "/root"

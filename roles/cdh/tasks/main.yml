@@ -1,109 +1,71 @@
-- name: 安装依赖包
-  yum: update_cache=yes name={{ item }} state=present
-  with_items:
-  - rpcbind
+# - name: 准备工作目录
+#   file: name={{ item }} state=directory owner={{ cdh_user }} group={{ cdh_group }} mode=0755
+#   with_items:
+#   - "{{ cm_work_path }}"
+#   - "/var/lib/cloudera-scm-server"
+#   - "/opt/cloudera/parcel-repo"
+#   - "{{ cdh_path_jobtracker }}"
+#   - "{{ cdh_path_tasktracker }}"
+# 
+ 
+# - name: 解压 cm 安装包
+#   unarchive:
+#     # src也可以直接填写一个URL地址直接进行下载解压
+#     src: "/tmp/cloudera-manager-centos7-cm{{cm_version}}_x86_64.tar.gz"
+#     copy: no
+#     dest: "{{ cm_work_path }}"
+#     owner: "{{ cdh_user }}"
+#     group: "{{ cdh_group }}"
+# 
+# - name: 调整 cm 目录所有者
+#   file: name={{ cm_path }} state=directory recurse=yes owner={{ cdh_user }} group={{ cdh_group }}
+# 
+# - name: 拷贝 cm 配置文件
+#   template: src={{ item }} dest={{ cm_path }}/etc/cloudera-scm-agent/ owner={{ cdh_user }} group={{ cdh_group }} mode=644
+#   with_items:
+#   - config.ini
+# 
+# - name: 添加 cloudera-scm 用户 
+#   user:
+#     name: cloudera-scm
+#     append: yes
+#     createhome: no
+#     system: yes
+#     home: "{{ cm_path }}/run/cloudera-scm-server"
+#     shell: /bin/false
+#     comment: "Cloudera SCM User"
+# 
+# - name: 拷贝 mysql-connector 包
+#   copy: src=mysql-connector-java-5.1.46.jar dest={{ cm_path }}/share/cmf/lib mode=644
+# 
+# - name: 初始化数据库
+#   shell: "{{ cm_path }}/share/cmf/schema/scm_prepare_database.sh {{cm_db_type}} {{cm_db_name}} -h{{cm_db_host}} -u{{cm_db_user}} -p'{{cm_db_password}}' -P{{cm_db_port}} --scm-host {{cdh_master_ip}} scm scm scm"
+#   ignore_errors: true
+#   run_once: true
+# 
+# - name: 下载 cdh Parcels
+#   get_url: url={{ item }} dest=/opt/cloudera/parcel-repo owner=cloudera-scm group=cloudera-scm mode=644
+#   with_items:
+#   - "{{ v_cdh_manifest_download_url }}"
+#   - "{{ v_cdh_download_url }}"
+# 
+# - name: 下载 cdh parcel.sha256 并改名为 parcel.sha
+#   get_url: url={{ item }} dest="/opt/cloudera/parcel-repo/CDH-{{v_cdh_version}}-1.cdh{{v_cdh_version}}.p{{v_cdh_version_p}}-el7.parcel.sha" owner=cloudera-scm group=cloudera-scm mode=644
+#   with_items:
+#   - "{{ v_cdh_sha_download_url }}"
+# 
+# - name: 将 manifest.json 文件中，找到对应版本的秘钥，复制到 .sha 文件中
+#   shell: 'echo "2e650f1f1ea020a3efc98a231b85c2df1a50b030" > "/opt/cloudera/parcel-repo/CDH-{{v_cdh_version}}-1.cdh{{v_cdh_version}}.p{{v_cdh_version_p}}-el7.parcel.sha"'
 
-- name: 重启 rpcbind 服务，并开启自启动
+- name: 重启 cloudera-scm-server 服务，并设置自启动
   systemd:
-    name: rpcbind
+    name: cloudera-scm-server
     daemon_reload: yes
     state: restarted
     enabled: yes
-
-- name: 在 hosts 添加 node_name
-  lineinfile:
-    dest: /etc/hosts
-    regexp: "{{ node_ip }}"
-    line: "{{ node_ip }} {{ node_name }}"
-
-# Cloudera 建议将 /proc/sys/vm/swappiness 设置为最大值 10。当前设置为 30。使
-# 用 sysctl 命令在运行时更改该设置并编辑 /etc/sysctl.conf，以在重启后保存该设置。
-# 您可以继续进行安装，但 Cloudera Manager 可能会报告您的主机由于交换而运行状况不良。     
-- name: 修改 linux swap 空间的 swappiness，降低对硬盘的缓存
-  lineinfile:
-    dest: /etc/sysctl.conf
-    regexp: "vm.swappiness"
-    line: "vm.swappiness={{ cdh_vm_swappiness }}"
-
-- name: 生效 swappiness 参数
-  shell: "sysctl -p /etc/sysctl.conf"
-
-# 已启用透明大页面压缩，可能会导致重大性能问题。
-# 请运行“echo never > /sys/kernel/mm/transparent_hugepage/defrag”
-# 和“echo never > /sys/kernel/mm/transparent_hugepage/enabled”以禁用此设置，
-# 然后将同一命令添加到 /etc/rc.local 等初始化脚本中，以便在系统重启时予以设置。
-# https://blog.csdn.net/csfreebird/article/details/49307935
-- name: 禁用透明大页面压缩
-  shell: "echo never > /sys/kernel/mm/transparent_hugepage/defrag && \
-          echo never > /sys/kernel/mm/transparent_hugepage/enabled"
-
-- name: 永久禁用透明大页面压缩
-  lineinfile:
-    dest: /etc/rc.local
-    regexp: "transparent_hugepage"
-    line: "echo never > /sys/kernel/mm/transparent_hugepage/defrag && echo never > /sys/kernel/mm/transparent_hugepage/enabled"
-
-- name: 准备工作目录
-  file: name={{ item }} state=directory owner={{ cdh_user }} group={{ cdh_group }} mode=0755
-  with_items:
-  - "{{ cm_work_path }}"
-  - "/var/lib/cloudera-scm-server"
-  - "/opt/cloudera/parcel-repo"
-  - "{{ cdh_path_jobtracker }}"
-  - "{{ cdh_path_tasktracker }}"
-
-- name: 下载 cm 安装包
-  get_url: url={{ cm_download_url }} dest=/tmp owner={{ cdh_user }} group={{ cdh_group }} mode=644
-
-- name: 解压 cm 安装包
-  unarchive:
-    # src也可以直接填写一个URL地址直接进行下载解压
-    src: "/tmp/cloudera-manager-centos7-cm{{cm_version}}_x86_64.tar.gz"
-    copy: no
-    dest: "{{ cm_work_path }}"
-    owner: "{{ cdh_user }}"
-    group: "{{ cdh_group }}"
-
-- name: 调整 cm 目录所有者
-  file: name={{ cm_path }} state=directory recurse=yes owner={{ cdh_user }} group={{ cdh_group }}
-
-- name: 拷贝 cm 配置文件
-  template: src={{ item }} dest={{ cm_path }}/etc/cloudera-scm-agent/ owner={{ cdh_user }} group={{ cdh_group }} mode=644
-  with_items:
-  - config.ini
-
-- name: 添加 cloudera-scm 用户 
-  user:
-    name: cloudera-scm
-    append: yes
-    createhome: no
-    system: yes
-    home: "{{ cm_path }}/run/cloudera-scm-server"
-    shell: /bin/false
-    comment: "Cloudera SCM User"
-
-- name: 拷贝 mysql-connector 包
-  copy: src=mysql-connector-java-5.1.46.jar dest={{ cm_path }}/share/cmf/lib mode=644
-
-- name: 初始化数据库
-  shell: "{{ cm_path }}/share/cmf/schema/scm_prepare_database.sh {{cm_db_type}} {{cm_db_name}} -h{{cm_db_host}} -u{{cm_db_user}} -p'{{cm_db_password}}' -P{{cm_db_port}} --scm-host {{cdh_master_ip}} scm scm scm"
-  ignore_errors: true
-  run_once: true
-
-- name: 下载 cdh Parcels
-  get_url: url={{ item }} dest=/opt/cloudera/parcel-repo owner={{ cdh_user }} group={{ cdh_group }} mode=644
-  with_items:
-  - "{{ cdh_manifest_download_url }}"
-  - "{{ cdh_download_url }}"
-
-# 否则识别不到，选择CDH版本的时候看不到
-- name: 下载 cdh parcel.sha1 并改名为 parcel.sha
-  get_url: url={{ item }} dest=/opt/cloudera/parcel-repo/CDH-{{cdh_version}}-1.cdh{{cdh_version}}.p{{cdh_version_p}}-el7.parcel.sha owner={{ cdh_user }} group={{ cdh_group }} mode=644
-  with_items:
-  - "{{ cdh_sha1_download_url }}"
-
-- name: 设置 cdh 环境变量
-  template: src=cdh_env.sh dest=/etc/profile.d
-
-- name: 生效 cdh 环境变量
-  shell: "source /etc/profile.d/cdh_env.sh"
+# 
+# - name: 设置 cdh 环境变量
+#   template: src=cdh_env.sh dest=/etc/profile.d
+# 
+# - name: 生效 cdh 环境变量
+#   shell: "source /etc/profile.d/cdh_env.sh"

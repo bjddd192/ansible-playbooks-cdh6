@@ -1,0 +1,5 @@
+v_cdh_download_url: "{{v_cdh_download_server}}/cdh6/{{v_cdh_version}}/parcels/CDH-{{v_cdh_version}}-1.cdh{{v_cdh_version}}.p{{v_cdh_version_p}}-el7.parcel"
+
+v_cdh_sha_download_url: "{{v_cdh_download_server}}/cdh6/{{v_cdh_version}}/parcels/CDH-{{v_cdh_version}}-1.cdh{{v_cdh_version}}.p{{v_cdh_version_p}}-el7.parcel.sha256"
+
+v_cdh_manifest_download_url: "{{v_cdh_download_server}}/cdh6/{{v_cdh_version}}/parcels/manifest.json"
