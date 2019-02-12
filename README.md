@@ -243,6 +243,9 @@ ansible-playbook -t common -i inventory/uat_cdh6.ini -e @inventory/uat_cdh6.yml 
 # 安装 jdk
 ansible-playbook -t jdk -i inventory/uat_cdh6.ini -e @inventory/uat_cdh6.yml cdh.yml
 
+# 设置 server 免密登录 agent
+ansible-playbook -t ssh -i inventory/uat_cdh6.ini -e @inventory/uat_cdh6.yml cdh.yml
+
 # 安装 scm
 ansible-playbook -t cm -i inventory/uat_cdh6.ini -e @inventory/uat_cdh6.yml cdh.yml
 

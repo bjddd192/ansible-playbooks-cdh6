@@ -1,0 +1,8 @@
+# SSH 用户
+v_ssh_user: "root"
+
+# SSH 用户组
+v_ssh_group: "root"
+
+# SSH 用户默认路径
+v_ssh_user_path: "/root"

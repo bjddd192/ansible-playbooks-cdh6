@@ -1,0 +1,24 @@
+- name: 检查是否有生成用户的 ssh 公钥
+  shell: "ls {{ v_ssh_user_path }}/.ssh|grep '.pub' |wc -l"
+  register: key_exist
+  ignore_errors: true
+
+- name: 生成 ssh 公钥
+  user:
+    name: "{{ v_ssh_user }}"
+    generate_ssh_key: yes
+    ssh_key_bits: 2048
+    ssh_key_file: .ssh/id_rsa
+  when: "key_exist.stdout == '0'"
+  
+- name: 获取 ssh 用户公钥
+  fetch: 
+    src: "{{ v_ssh_user_path }}/.ssh/id_rsa.pub"
+    dest: "/tmp/id_{{ ansible_host }}_{{ v_ssh_user }}.pub"
+    flat: yes
+
+# 从本地 authorized_keys 文件读取公钥内容
+- name: 获取 server 的 ssh 用户公钥完成免密登陆 agent
+  authorized_key: 
+    user: "{{ v_ssh_user }}"
+    key: "{{ lookup('file', '/tmp/id_{{ v_server_ip }}_{{ v_ssh_user }}.pub') }}"

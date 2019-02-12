@@ -11,21 +11,23 @@
   tags: "jdk"
   
 - hosts: 
+  - cdh-server
+  roles: 
+  - ssh
+  tags: "ssh"
+
+- hosts: 
+  - cdh-agent
+  roles: 
+  - ssh
+  tags: "ssh"
+  
+- hosts: 
   - cdh-cluster
   roles: 
   - cm
   tags: "cm"
-  
-# - hosts: 
-#   - cdh-master
-#   roles: 
-#   - ca
-# 
-# - hosts: 
-#   - cdh-workers
-#   roles: 
-#   - ca
-# 
+
 - hosts: 
   - cdh-server
   roles: 
