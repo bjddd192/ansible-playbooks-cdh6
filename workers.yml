@@ -1,5 +1,0 @@
-- hosts: 
-  - hadoop-workers
-  roles: 
-  # - common
-  - hadoop

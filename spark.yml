@@ -1,4 +1,0 @@
-- hosts: 
-  - spark
-  roles: 
-  - spark

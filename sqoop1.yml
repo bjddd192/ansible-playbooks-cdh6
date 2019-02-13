@@ -1,4 +1,0 @@
-- hosts: 
-  - sqoop
-  roles: 
-  - sqoop1

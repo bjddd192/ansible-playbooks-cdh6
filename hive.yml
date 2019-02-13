@@ -1,5 +1,0 @@
-- hosts: 
-  - hive
-  roles: 
-  # - common
-  - hive

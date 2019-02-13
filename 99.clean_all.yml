@@ -1,0 +1,60 @@
+- hosts:
+  - cdh-cluster
+  tasks:
+  - name: 停止 cloudera-scm-agent
+    systemd:
+      name: cloudera-scm-agent
+      state: stopped
+    ignore_errors: true  
+
+- hosts:
+  - cdh-server
+  tasks:
+  - name: 停止 cloudera-scm-server
+    systemd:
+      name: cloudera-scm-server
+      state: stopped
+    ignore_errors: true  
+
+- hosts:
+  - cdh-cluster
+  tasks: 
+  - name: 等待服务停止
+    shell: "sleep 20"
+  - name: umount cm 挂载的目录
+    shell: "for cm_mount_path in $(mount | grep 'cloudera-scm'| awk '{print $3}'); do umount $cm_mount_path; done"
+    ignore_errors: true
+  - name: 卸载 cloudera-manager-daemons cloudera-manager-agent
+    yum: name={{ item }} state=absent
+    with_items:
+    - cloudera-manager-daemons
+    - cloudera-manager-agent
+    ignore_errors: true  
+  - name: 卸载 cloudera-manager-server
+    yum: name={{ item }} state=absent
+    with_items:
+    - cloudera-manager-server
+    when: "'cdh-server' in group_names"
+    ignore_errors: true
+
+- hosts:
+  - cdh-cluster
+  tasks:
+  - name: 清理目录和文件
+    shell: "rm -rf /usr/share/cmf /var/lib/cloudera* /var/log/cloudera* /var/run/cloudera* /var/run/hdfs-sockets && \
+      rm -rf /tmp/.scmpreparenode.lock /usr/lib/hue && \
+      rm -rf /var/lib/flume-ng /var/lib/hadoop* /var/lib/hue /var/lib/navigator /var/lib/oozie /var/lib/solr && \
+      rm -rf /var/lib/zookeeper /var/lib/kudu /var/lib/kafka /var/lib/impala /var/lib/sqoop* && \
+      rm -rf /usr/bin/hadoop* /usr/bin/zookeeper* /usr/bin/hbase* /usr/bin/hive* /usr/bin/hdfs /usr/bin/mapred && \
+      rm -rf /usr/bin/yarn /usr/bin/sqoop* /usr/bin/oozie /usr/bin/impala /usr/bin/spark* && \
+      rm -rf /etc/hadoop* /etc/zookeeper* /etc/hive* /etc/hue /etc/impala /etc/sqoop* /etc/oozie && \
+      rm -rf /etc/hbase* /etc/hcatalog /etc/spark /etc/solr /etc/cloudera* && \
+      rm -rf /opt/cloudera /data/kudu /data/dfs /data/yarn /data/mapred"
+    ignore_errors: true
+  - name: 清理 alternatives 软连接
+    # 注意这里的 ls -l 不能写成 ll，否则命令会执行失败。
+    shell: "for alternatives in $(ls -l /etc/alternatives | grep CDH-{{ v_cdh_version }} | awk '{print $9}'); do rm -rf /etc/alternatives/$alternatives; done"
+    ignore_errors: true
+    
+# kill 掉相关进程
+# for u in hdfs mapred cloudera-scm hbase hue zookeeper oozie hive impala flume; do sudo kill $(ps -u $u -o pid=); done

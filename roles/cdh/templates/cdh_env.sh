@@ -1,4 +1,4 @@
-export BASE_PATH={{ cdh_base_path }}
+export BASE_PATH="/opt/cloudera/parcels/CDH-6.0.1-1.cdh6.0.1.p0.590678/bin"
 export HBASE_HOME=$BASE_PATH/hbase
 export PATH=$HBASE_HOME/bin:$PATH
 export HADOOP_HOME=$BASE_PATH/hadoop

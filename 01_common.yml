@@ -1,6 +1,0 @@
-- hosts: 
-  #- cdh-cluster
-  - cdh-master
-  roles: 
-  - common
-  # - jdk

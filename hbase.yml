@@ -1,5 +1,0 @@
-- hosts: 
-  - hbase
-  roles: 
-  # - common
-  - hbase
