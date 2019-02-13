@@ -18,7 +18,7 @@
     daemon_reload: yes
     state: restarted
     enabled: yes
-# 
+
 # - name: 设置 cdh 环境变量
 #   template: src=cdh_env.sh dest=/etc/profile.d
 # 

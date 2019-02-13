@@ -44,12 +44,12 @@ CDH6 官网自身提供了下载服务器地址：
 
 首先 [安装 docker + docker-compose](https://www.zorin.xin/docker-manual/install/Centos7.html)。
 
-然后在服务器上初始化下载服务器：
+然后在服务器上初始化下载服务器：
 
 ```sh
 # sfds 意为 static file download service
 
-# 初始化 sfds 配置目录
+# 初始化 sfds 配置目录
 mkdir -p /data/docker_volumn/sfds
 
 # 初始化数据文件目录
@@ -58,7 +58,7 @@ mkdir -p /data/sfds
 # 初始化编排文件目录
 mkdir -p /data/docker_compose
 
-# 初始化 sfds 配置文件
+# 初始化 sfds 配置文件
 tee /data/docker_volumn/sfds/nginx.conf <<-'EOF'
 worker_processes  1;
 pid        /var/run/nginx.pid;
