@@ -366,24 +366,67 @@ Cloudrea Manager页面开启了google-analytics，因为从国内访问很慢，
 
 管理 -> 设置 -> 其他 -> 允许使用情况数据收集 不选
 
-### Cloudera Manager(CDH5)目录位置
+### CDH 配置
+
+#### 目录位置
+
+路径                                   | 说明
+---------------------------------------|------------------------------
+/var/lib/cloudera-scm-server           | 服务端目录
+/var/log/cloudera-scm-*                | CM 日志目录
+/opt/cloudera/parcels/                 | Hadoop 相关服务安装目录
+/opt/cloudera/parcel-repo/             | 下载的服务软件包数据(parcels)
+/opt/cloudera/parcel-cache             | 下载的服务软件包缓存数据
+/opt/cloudera/parcels/CDH/jars         | CDH 所有 jar 包所在目录
+/etc/cloudera-scm-agent/config.ini     | CM Agent 的配置文件
+/etc/cloudera-scm-server/              | CM Server 的配置目录
+/etc/cloudera-scm-server/db.properties | CM Server 的数据库配置
+/etc/hadoop/*                          | hadoop客户端配置目录
+/etc/hive/                             | hive 的配置目录
+...                                    |
+
+#### 环境变量脚本
+
+CDH 自身有一个环境变量脚本，如下：
 
 ```sh
-/var/log/cloudera-scm-installer : 安装日志目录。
-/var/log/* : 相关日志文件（相关服务的及CM的）。
-/usr/share/cmf/ : 程序安装目录。
-/usr/lib64/cmf/ : Agent程序代码。
-/var/lib/cloudera-scm-server-db/data : 内嵌数据库目录。
-/usr/bin/postgres : 内嵌数据库程序。
-/etc/cloudera-scm-agent/ : agent的配置目录。
-/etc/cloudera-scm-server/ : server的配置目录。
-/opt/cloudera/parcels/ : Hadoop相关服务安装目录。
-/opt/cloudera/parcel-repo/ : 下载的服务软件包数据，数据格式为parcels。
-/opt/cloudera/parcel-cache/ : 下载的服务软件包缓存数据。
-/etc/hadoop/* : 客户端配置文件目录。
+cat /opt/cloudera/parcels/CDH/meta/cdh_env.sh
+#!/bin/bash
+CDH_DIRNAME=${PARCEL_DIRNAME:-"CDH-6.0.1-1.cdh6.0.1.p0.590678"}
+export CDH_HADOOP_HOME=$PARCELS_ROOT/$CDH_DIRNAME/lib/hadoop
+export CDH_MR1_HOME=$PARCELS_ROOT/$CDH_DIRNAME/lib/hadoop-0.20-mapreduce
+export CDH_HDFS_HOME=$PARCELS_ROOT/$CDH_DIRNAME/lib/hadoop-hdfs
+export CDH_HTTPFS_HOME=$PARCELS_ROOT/$CDH_DIRNAME/lib/hadoop-httpfs
+export CDH_MR2_HOME=$PARCELS_ROOT/$CDH_DIRNAME/lib/hadoop-mapreduce
+export CDH_YARN_HOME=$PARCELS_ROOT/$CDH_DIRNAME/lib/hadoop-yarn
+export CDH_HBASE_HOME=$PARCELS_ROOT/$CDH_DIRNAME/lib/hbase
+export CDH_ZOOKEEPER_HOME=$PARCELS_ROOT/$CDH_DIRNAME/lib/zookeeper
+export CDH_HIVE_HOME=$PARCELS_ROOT/$CDH_DIRNAME/lib/hive
+export CDH_HUE_HOME=$PARCELS_ROOT/$CDH_DIRNAME/lib/hue
+export CDH_OOZIE_HOME=$PARCELS_ROOT/$CDH_DIRNAME/lib/oozie
+export CDH_HUE_PLUGINS_HOME=$PARCELS_ROOT/$CDH_DIRNAME/lib/hadoop
+export CDH_FLUME_HOME=$PARCELS_ROOT/$CDH_DIRNAME/lib/flume-ng
+export CDH_PIG_HOME=$PARCELS_ROOT/$CDH_DIRNAME/lib/pig
+export CDH_HCAT_HOME=$PARCELS_ROOT/$CDH_DIRNAME/lib/hive-hcatalog
+export CDH_SENTRY_HOME=$PARCELS_ROOT/$CDH_DIRNAME/lib/sentry
+export JSVC_HOME=$PARCELS_ROOT/$CDH_DIRNAME/lib/bigtop-utils
+export CDH_HADOOP_BIN=$CDH_HADOOP_HOME/bin/hadoop
+export CDH_IMPALA_HOME=$PARCELS_ROOT/$CDH_DIRNAME/lib/impala
+export CDH_SOLR_HOME=$PARCELS_ROOT/$CDH_DIRNAME/lib/solr
+export CDH_HBASE_INDEXER_HOME=$PARCELS_ROOT/$CDH_DIRNAME/lib/hbase-solr
+export SEARCH_HOME=$PARCELS_ROOT/$CDH_DIRNAME/lib/search
+export CDH_SPARK_HOME=$PARCELS_ROOT/$CDH_DIRNAME/lib/spark
+export WEBHCAT_DEFAULT_XML=$PARCELS_ROOT/$CDH_DIRNAME/etc/hive-webhcat/conf.dist/webhcat-default.xml
+export CDH_KMS_HOME=$PARCELS_ROOT/$CDH_DIRNAME/lib/hadoop-kms
+export CDH_PARQUET_HOME=$PARCELS_ROOT/$CDH_DIRNAME/lib/parquet
+export CDH_AVRO_HOME=$PARCELS_ROOT/$CDH_DIRNAME/lib/avro
+export CDH_KAFKA_HOME=$PARCELS_ROOT/$CDH_DIRNAME/lib/kafka
+export CDH_KUDU_HOME=$PARCELS_ROOT/$CDH_DIRNAME/lib/kudu
 ```
 
 ### 参考资料
+
+#### 部署相关
 
 [CentOS7 ntp 服务器配置](https://www.cnblogs.com/harrymore/p/9566229.html)
 
@@ -400,3 +443,7 @@ Cloudrea Manager页面开启了google-analytics，因为从国内访问很慢，
 [CentOS 7下Cloudera Manager及CDH 6.0.1安装过程详解](https://www.cnblogs.com/wzlinux/p/10183357.html)
 
 [CDH5.15卸载指南](https://blog.csdn.net/weixin_35852328/article/details/81774627)
+
+#### 配置相关
+
+[CDH5快速入门手册](https://www.jianshu.com/p/72dc1c591647)
