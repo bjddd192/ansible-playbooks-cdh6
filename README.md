@@ -358,14 +358,6 @@ ansible-playbook -i inventory/uat_cdh6.ini 99.clean_all.yml
 # 然后删除已创建的数据库
 ```
 
-### 其他技巧
-
-在Cloudrea Manager页面上，可以向集群中添加/删除主机，添加服务到集群等。
-
-Cloudrea Manager页面开启了google-analytics，因为从国内访问很慢，可以关闭google-analytics
-
-管理 -> 设置 -> 其他 -> 允许使用情况数据收集 不选
-
 ### CDH 配置
 
 #### 目录位置
@@ -385,7 +377,7 @@ Cloudrea Manager页面开启了google-analytics，因为从国内访问很慢，
 /etc/hive/                             | hive 的配置目录
 ...                                    |
 
-#### 环境变量脚本
+#### 环境变量
 
 CDH 自身有一个环境变量脚本，如下：
 
@@ -423,6 +415,14 @@ export CDH_AVRO_HOME=$PARCELS_ROOT/$CDH_DIRNAME/lib/avro
 export CDH_KAFKA_HOME=$PARCELS_ROOT/$CDH_DIRNAME/lib/kafka
 export CDH_KUDU_HOME=$PARCELS_ROOT/$CDH_DIRNAME/lib/kudu
 ```
+
+#### 其他技巧
+
+在Cloudrea Manager页面上，可以向集群中添加/删除主机，添加服务到集群等。
+
+Cloudrea Manager页面开启了google-analytics，因为从国内访问很慢，可以关闭google-analytics
+
+管理 -> 设置 -> 其他 -> 允许使用情况数据收集 不选
 
 ### 参考资料
 
