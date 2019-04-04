@@ -246,6 +246,17 @@ ansible-playbook -t ssh -i inventory/uat_cdh6.ini -e @inventory/uat_cdh6.yml 01.
 
 # 安装 scm
 ansible-playbook -t cm -i inventory/uat_cdh6.ini -e @inventory/uat_cdh6.yml 01.cdh.yml
+# 如安装数据库的过程中报错：java.sql.SQLException: Statement violates GTID consistency: CREATE TABLE ... SELECT.
+# 需临时关闭 mysql 的 gtid 功能：
+# set global gtid_mode=on_permissive;
+# set global gtid_mode=off_permissive;
+# set global gtid_mode=off;
+# set global enforce_gtid_consistency=off;
+# 撸完后恢复：
+# set global enforce_gtid_consistency=on;
+# set global gtid_mode=off_permissive;
+# set global gtid_mode=on_permissive;
+# set global gtid_mode=on;
 
 # 放置 cdh 离线安装包
 ansible-playbook -t cdh -i inventory/uat_cdh6.ini -e @inventory/uat_cdh6.yml 01.cdh.yml
@@ -433,6 +444,8 @@ Cloudrea Manager页面开启了google-analytics，因为从国内访问很慢，
 [CentOS7 配置 ntp 时间服务器](https://blog.csdn.net/zzy5066/article/details/79036674)
 
 [CentOS7 中使用NTP进行时间同步](http://www.cnblogs.com/yangxiansen/p/7860008.html)
+
+[如何给hadoop集群分配角色](https://blog.csdn.net/chenguangchun1993/article/details/79164857)
 
 [Cloudera Manager 和CDH6.0.1安装，卸载，各步骤截图](https://blog.csdn.net/tototuzuoquan/article/details/85111018)
 

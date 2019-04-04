@@ -49,7 +49,8 @@
       rm -rf /usr/bin/yarn /usr/bin/sqoop* /usr/bin/oozie /usr/bin/impala /usr/bin/spark* && \
       rm -rf /etc/hadoop* /etc/zookeeper* /etc/hive* /etc/hue /etc/impala /etc/sqoop* /etc/oozie && \
       rm -rf /etc/hbase* /etc/hcatalog /etc/spark /etc/solr /etc/cloudera* && \
-      rm -rf /opt/cloudera /data/kudu /data/dfs /data/yarn /data/mapred"
+      rm -rf /opt/cloudera && \
+      rm -rf /data/kudu /data/dfs /data/yarn /data/mapred"
     ignore_errors: true
   - name: 清理 alternatives 软连接
     # 注意这里的 ls -l 不能写成 ll，否则命令会执行失败。

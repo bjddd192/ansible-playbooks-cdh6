@@ -1,16 +1,16 @@
-# - name: 卸载系统自带 JDK
-#   yum: name={{ item }} state=absent
-#   with_items: 
-#   - "java*"
-#   - "jdk*"
-#   - "oracle-j2sdk*"
-#   when: v_jdk_install=="true"
+- name: 卸载系统自带 JDK
+  yum: name={{ item }} state=absent
+  with_items: 
+  - "java*"
+  - "jdk*"
+  - "oracle-j2sdk*"
+  when: v_jdk_install=="true"
   
-# - name: 下载 JDK
-#   get_url: url={{ item }} dest=/tmp mode=644
-#   with_items:
-#   - "{{ v_cdh_oracle_j2sdk_download_url }}"
-#   when: v_jdk_install=="true"
+- name: 下载 JDK
+  get_url: url={{ item }} dest=/tmp mode=644
+  with_items:
+  - "{{ v_cdh_oracle_j2sdk_download_url }}"
+  when: v_jdk_install=="true"
 
 - name: 安装 JDK
   yum: name={{ item }} state=present
