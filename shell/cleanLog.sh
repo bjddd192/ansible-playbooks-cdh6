@@ -14,8 +14,14 @@ rm -rf /var/log/cloudera-scm-server/*.out.*
 rm -rf /var/log/cloudera-scm-server/*.log.*
 
 rm -rf /var/log/hadoop-hdfs/*.out.*
+rm -rf /var/log/hadoop-hdfs/*.log.*
 rm -rf /var/log/hadoop-httpfs/*.out.*
 rm -rf /var/log/hadoop-kms/*.out.*
 rm -rf /var/log/hadoop-mapreduce/*.out.*
+rm -rf /var/log/hadoop-yarn/*.out.*
+rm -rf /var/log/hadoop-yarn/*.audit.*
+rm -rf /var/log/hive/*.out.*
+rm -rf /var/log/oozie/*.out.*
+rm -rf /var/log/oozie/*.log.*
 
 rm -rf /var/log/zookeeper/*.log.*
